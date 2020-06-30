@@ -4,19 +4,19 @@ import pickle
 from contextlib import contextmanager
 from datetime import timedelta
 
+from prometheus_client import REGISTRY, generate_latest
+from prometheus_client.core import GaugeMetricFamily
+
 from airflow.configuration import conf
-from airflow.models import DagModel, DagRun, TaskInstance, TaskFail, XCom
+from airflow.models import DagModel, DagRun, TaskFail, TaskInstance, XCom
 from airflow.plugins_manager import AirflowPlugin
 from airflow.settings import RBAC, Session
-from airflow.utils.state import State
 from airflow.utils.log.logging_mixin import LoggingMixin
+from airflow.utils.state import State
+from airflow_prometheus_exporter.xcom_config import load_xcom_config
 from flask import Response
 from flask_admin import BaseView, expose
-from prometheus_client import generate_latest, REGISTRY
-from prometheus_client.core import GaugeMetricFamily
 from sqlalchemy import and_, func
-
-from airflow_prometheus_exporter.xcom_config import load_xcom_config
 
 CANARY_DAG = "canary_dag"
 
@@ -388,7 +388,7 @@ if RBAC:
     from flask_appbuilder import BaseView as FABBaseView, expose as FABexpose
 
     class RBACMetrics(FABBaseView):
-        route_base = "/admin/metrics/"
+        route_base = "/metrics/"
 
         @FABexpose("/")
         def list(self):
